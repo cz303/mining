@@ -1,0 +1,1286 @@
+<?php
+
+
+
+
+class PHPExcel_Writer_HTML extends PHPExcel_Writer_Abstract implements PHPExcel_Writer_IWriter {
+	
+	protected $Vviknio3gpsr;
+
+	
+	private $Vcpdbbaxw2wf	= 0;
+
+	
+	private $V05kzaduwwdk	= '.';
+
+	
+	private $Vecliuxzbdtx	= FALSE;
+
+	
+	private $Vdonosmoy0qs = false;
+
+	
+	private $Vt12at5uyluz = null;
+
+	
+	private $Vctdt3hprzv3 = null;
+
+	
+	private $Vzk2ajn4c11w;
+
+	
+	private $Vs2z2nczi1sm	= false;
+
+	
+	private $Vczaf2mpqi3m	= array();
+
+	
+	private $Vzb30swsg2l3	= array();
+
+	
+	private $Vk32uxbafoc3	= array();
+
+	
+	protected $V0pcdt3ph3ns = false;
+
+	
+	private $Vz3ghanhnmx1 = true;
+
+	
+	public function __construct(PHPExcel $Vlspthbp3hwz) {
+		$this->_phpExcel = $Vlspthbp3hwz;
+		$this->_defaultFont = $this->_phpExcel->getDefaultStyle()->getFont();
+	}
+
+	
+	public function save($V1tltbb5c5oc = null) {
+		
+		$this->_phpExcel->garbageCollect();
+
+		$Vyg0k2nrdluk = PHPExcel_Calculation::getInstance($this->_phpExcel)->getDebugLog()->getWriteDebugLog();
+		PHPExcel_Calculation::getInstance($this->_phpExcel)->getDebugLog()->setWriteDebugLog(FALSE);
+		$V340pcdkqcp2 = PHPExcel_Calculation::getArrayReturnType();
+		PHPExcel_Calculation::setArrayReturnType(PHPExcel_Calculation::RETURN_ARRAY_AS_VALUE);
+
+		
+		$this->buildCSS(!$this->_useInlineCss);
+
+		
+		$Vsg4lebcui4l = fopen($V1tltbb5c5oc, 'wb+');
+		if ($Vsg4lebcui4l === false) {
+			throw new PHPExcel_Writer_Exception("Could not open file $V1tltbb5c5oc for writing.");
+		}
+
+		
+		fwrite($Vsg4lebcui4l, $this->generateHTMLHeader(!$this->_useInlineCss));
+
+		
+		if ((!$this->_isPdf) && ($this->_generateSheetNavigationBlock)) {
+			fwrite($Vsg4lebcui4l, $this->generateNavigation());
+		}
+
+		
+		fwrite($Vsg4lebcui4l, $this->generateSheetData());
+
+		
+		fwrite($Vsg4lebcui4l, $this->generateHTMLFooter());
+
+		
+		fclose($Vsg4lebcui4l);
+
+		PHPExcel_Calculation::setArrayReturnType($V340pcdkqcp2);
+		PHPExcel_Calculation::getInstance($this->_phpExcel)->getDebugLog()->setWriteDebugLog($Vyg0k2nrdluk);
+	}
+
+	
+	private function _mapVAlign($Vwdx1jlkaxdj) {
+		switch ($Vwdx1jlkaxdj) {
+			case PHPExcel_Style_Alignment::VERTICAL_BOTTOM:		return 'bottom';
+			case PHPExcel_Style_Alignment::VERTICAL_TOP:		return 'top';
+			case PHPExcel_Style_Alignment::VERTICAL_CENTER:
+			case PHPExcel_Style_Alignment::VERTICAL_JUSTIFY:	return 'middle';
+			default: return 'baseline';
+		}
+	}
+
+	
+	private function _mapHAlign($V3wqolxpnebq) {
+		switch ($V3wqolxpnebq) {
+			case PHPExcel_Style_Alignment::HORIZONTAL_GENERAL:				return false;
+			case PHPExcel_Style_Alignment::HORIZONTAL_LEFT:					return 'left';
+			case PHPExcel_Style_Alignment::HORIZONTAL_RIGHT:				return 'right';
+			case PHPExcel_Style_Alignment::HORIZONTAL_CENTER:
+			case PHPExcel_Style_Alignment::HORIZONTAL_CENTER_CONTINUOUS:	return 'center';
+			case PHPExcel_Style_Alignment::HORIZONTAL_JUSTIFY:				return 'justify';
+			default: return false;
+		}
+	}
+
+	
+	private function _mapBorderStyle($V3w3s2v4rm1p) {
+		switch ($V3w3s2v4rm1p) {
+			case PHPExcel_Style_Border::BORDER_NONE:				return 'none';
+			case PHPExcel_Style_Border::BORDER_DASHDOT:				return '1px dashed';
+			case PHPExcel_Style_Border::BORDER_DASHDOTDOT:			return '1px dotted';
+			case PHPExcel_Style_Border::BORDER_DASHED:				return '1px dashed';
+			case PHPExcel_Style_Border::BORDER_DOTTED:				return '1px dotted';
+			case PHPExcel_Style_Border::BORDER_DOUBLE:				return '3px double';
+			case PHPExcel_Style_Border::BORDER_HAIR:				return '1px solid';
+			case PHPExcel_Style_Border::BORDER_MEDIUM:				return '2px solid';
+			case PHPExcel_Style_Border::BORDER_MEDIUMDASHDOT:		return '2px dashed';
+			case PHPExcel_Style_Border::BORDER_MEDIUMDASHDOTDOT:	return '2px dotted';
+			case PHPExcel_Style_Border::BORDER_MEDIUMDASHED:		return '2px dashed';
+			case PHPExcel_Style_Border::BORDER_SLANTDASHDOT:		return '2px dashed';
+			case PHPExcel_Style_Border::BORDER_THICK:				return '3px solid';
+			case PHPExcel_Style_Border::BORDER_THIN:				return '1px solid';
+			default: return '1px solid'; 
+		}
+	}
+
+	
+	public function getSheetIndex() {
+		return $this->_sheetIndex;
+	}
+
+	
+	public function setSheetIndex($Vqujkwol1zut = 0) {
+		$this->_sheetIndex = $Vqujkwol1zut;
+		return $this;
+	}
+
+	
+	public function getGenerateSheetNavigationBlock() {
+		return $this->_generateSheetNavigationBlock;
+	}
+
+	
+	public function setGenerateSheetNavigationBlock($Vqujkwol1zut = true) {
+		$this->_generateSheetNavigationBlock = (bool) $Vqujkwol1zut;
+		return $this;
+	}
+
+	
+	public function writeAllSheets() {
+		$this->_sheetIndex = null;
+		return $this;
+	}
+
+	
+	public function generateHTMLHeader($Vzpc5qcrmshn = false) {
+		
+		if (is_null($this->_phpExcel)) {
+			throw new PHPExcel_Writer_Exception('Internal PHPExcel object not set to an instance of an object.');
+		}
+
+		
+		$Vdzateo11wzq = $this->_phpExcel->getProperties();
+		$Vxcvxsbzpwbz = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">' . PHP_EOL;
+		$Vxcvxsbzpwbz .= '<!-- Generated by PHPExcel - http://www.phpexcel.net -->' . PHP_EOL;
+		$Vxcvxsbzpwbz .= '<html>' . PHP_EOL;
+		$Vxcvxsbzpwbz .= '  <head>' . PHP_EOL;
+		$Vxcvxsbzpwbz .= '	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . PHP_EOL;
+		if ($Vdzateo11wzq->getTitle() > '')
+			$Vxcvxsbzpwbz .= '	  <title>' . htmlspecialchars($Vdzateo11wzq->getTitle()) . '</title>' . PHP_EOL;
+
+		if ($Vdzateo11wzq->getCreator() > '')
+			$Vxcvxsbzpwbz .= '	  <meta name="author" content="' . htmlspecialchars($Vdzateo11wzq->getCreator()) . '" />' . PHP_EOL;
+		if ($Vdzateo11wzq->getTitle() > '')
+			$Vxcvxsbzpwbz .= '	  <meta name="title" content="' . htmlspecialchars($Vdzateo11wzq->getTitle()) . '" />' . PHP_EOL;
+		if ($Vdzateo11wzq->getDescription() > '')
+			$Vxcvxsbzpwbz .= '	  <meta name="description" content="' . htmlspecialchars($Vdzateo11wzq->getDescription()) . '" />' . PHP_EOL;
+		if ($Vdzateo11wzq->getSubject() > '')
+			$Vxcvxsbzpwbz .= '	  <meta name="subject" content="' . htmlspecialchars($Vdzateo11wzq->getSubject()) . '" />' . PHP_EOL;
+		if ($Vdzateo11wzq->getKeywords() > '')
+			$Vxcvxsbzpwbz .= '	  <meta name="keywords" content="' . htmlspecialchars($Vdzateo11wzq->getKeywords()) . '" />' . PHP_EOL;
+		if ($Vdzateo11wzq->getCategory() > '')
+			$Vxcvxsbzpwbz .= '	  <meta name="category" content="' . htmlspecialchars($Vdzateo11wzq->getCategory()) . '" />' . PHP_EOL;
+		if ($Vdzateo11wzq->getCompany() > '')
+			$Vxcvxsbzpwbz .= '	  <meta name="company" content="' . htmlspecialchars($Vdzateo11wzq->getCompany()) . '" />' . PHP_EOL;
+		if ($Vdzateo11wzq->getManager() > '')
+			$Vxcvxsbzpwbz .= '	  <meta name="manager" content="' . htmlspecialchars($Vdzateo11wzq->getManager()) . '" />' . PHP_EOL;
+
+		if ($Vzpc5qcrmshn) {
+			$Vxcvxsbzpwbz .= $this->generateStyles(true);
+		}
+
+		$Vxcvxsbzpwbz .= '  </head>' . PHP_EOL;
+		$Vxcvxsbzpwbz .= '' . PHP_EOL;
+		$Vxcvxsbzpwbz .= '  <body>' . PHP_EOL;
+
+		
+		return $Vxcvxsbzpwbz;
+	}
+
+	
+	public function generateSheetData() {
+		
+		if (is_null($this->_phpExcel)) {
+			throw new PHPExcel_Writer_Exception('Internal PHPExcel object not set to an instance of an object.');
+		}
+
+		
+		if (!$this->_spansAreCalculated) {
+			$this->_calculateSpans();
+		}
+
+		
+		$Vxhmjttovyg4 = array();
+		if (is_null($this->_sheetIndex)) {
+			$Vxhmjttovyg4 = $this->_phpExcel->getAllSheets();
+		} else {
+			$Vxhmjttovyg4[] = $this->_phpExcel->getSheet($this->_sheetIndex);
+		}
+
+		
+		$Vxcvxsbzpwbz = '';
+
+		
+		$Valxnycf2yig = 0;
+		foreach ($Vxhmjttovyg4 as $Vzg4jtrmmzdy) {
+			
+			$Vxcvxsbzpwbz .= $this->_generateTableHeader($Vzg4jtrmmzdy);
+
+			
+			$Vppcarr30ce5 = explode(':', $Vzg4jtrmmzdy->calculateWorksheetDimension());
+			$Vppcarr30ce5[0] = PHPExcel_Cell::coordinateFromString($Vppcarr30ce5[0]);
+			$Vppcarr30ce5[0][0] = PHPExcel_Cell::columnIndexFromString($Vppcarr30ce5[0][0]) - 1;
+			$Vppcarr30ce5[1] = PHPExcel_Cell::coordinateFromString($Vppcarr30ce5[1]);
+			$Vppcarr30ce5[1][0] = PHPExcel_Cell::columnIndexFromString($Vppcarr30ce5[1][0]) - 1;
+
+			
+			$Vtwirippxs0f = $Vppcarr30ce5[0][1];
+			$Vzi244haw54t = $Vppcarr30ce5[1][1];
+
+			
+			$V2ipmnahqgzx = $Vtwirippxs0f;
+			$V0dmqrw1crmo = $V43sdhafofig   = 0; 
+			if ($Vzg4jtrmmzdy->getPageSetup()->isRowsToRepeatAtTopSet()) {
+				$Vkn2vdzrcyhf = $Vzg4jtrmmzdy->getPageSetup()->getRowsToRepeatAtTop();
+
+				
+				if ($Vkn2vdzrcyhf[0] == 1) {
+					$V0dmqrw1crmo = $Vkn2vdzrcyhf[0];
+					$V43sdhafofig   = $Vkn2vdzrcyhf[1];
+					$V2ipmnahqgzx = $Vkn2vdzrcyhf[1] + 1;
+				}
+			}
+
+			
+			$Vexbtekafkvl = $Vtwirippxs0f-1;
+			while($Vexbtekafkvl++ < $Vzi244haw54t) {
+				
+				if ($Vexbtekafkvl == $V0dmqrw1crmo) {
+					$Vxcvxsbzpwbz .= '		<thead>' . PHP_EOL;
+                    $V3wv33pejuaz = 'th';
+				}
+
+				
+				if ($Vexbtekafkvl == $V2ipmnahqgzx) {
+					$Vxcvxsbzpwbz .= '		<tbody>' . PHP_EOL;
+                    $V3wv33pejuaz = 'td';
+				}
+
+				
+				if ( !isset($this->_isSpannedRow[$Vzg4jtrmmzdy->getParent()->getIndex($Vzg4jtrmmzdy)][$Vexbtekafkvl]) ) {
+					
+					$VexbtekafkvlData = array();
+					
+					$Vn4q2p4mkwa0 = $Vppcarr30ce5[0][0] - 1;
+					while($Vn4q2p4mkwa0++ < $Vppcarr30ce5[1][0]) {
+						
+						if ($Vzg4jtrmmzdy->cellExistsByColumnAndRow($Vn4q2p4mkwa0, $Vexbtekafkvl)) {
+							$VexbtekafkvlData[$Vn4q2p4mkwa0] = PHPExcel_Cell::stringFromColumnIndex($Vn4q2p4mkwa0) . $Vexbtekafkvl;
+						} else {
+							$VexbtekafkvlData[$Vn4q2p4mkwa0] = '';
+						}
+					}
+					$Vxcvxsbzpwbz .= $this->_generateRow($Vzg4jtrmmzdy, $VexbtekafkvlData, $Vexbtekafkvl - 1, $V3wv33pejuaz);
+				}
+
+				
+				if ($Vexbtekafkvl == $V43sdhafofig) {
+					$Vxcvxsbzpwbz .= '		</thead>' . PHP_EOL;
+				}
+			}
+			$Vxcvxsbzpwbz .= $this->_extendRowsForChartsAndImages($Vzg4jtrmmzdy, $Vexbtekafkvl);
+
+			
+			$Vxcvxsbzpwbz .= '		</tbody>' . PHP_EOL;
+
+			
+			$Vxcvxsbzpwbz .= $this->_generateTableFooter();
+
+			
+			if ($this->_isPdf) {
+				if (is_null($this->_sheetIndex) && $Valxnycf2yig + 1 < $this->_phpExcel->getSheetCount()) {
+					$Vxcvxsbzpwbz .= '<div style="page-break-before:always" />';
+				}
+			}
+
+			
+			++$Valxnycf2yig;
+		}
+
+		
+		return $Vxcvxsbzpwbz;
+	}
+
+	
+	public function generateNavigation()
+	{
+		
+		if (is_null($this->_phpExcel)) {
+			throw new PHPExcel_Writer_Exception('Internal PHPExcel object not set to an instance of an object.');
+		}
+
+		
+		$Vxhmjttovyg4 = array();
+		if (is_null($this->_sheetIndex)) {
+			$Vxhmjttovyg4 = $this->_phpExcel->getAllSheets();
+		} else {
+			$Vxhmjttovyg4[] = $this->_phpExcel->getSheet($this->_sheetIndex);
+		}
+
+		
+		$Vxcvxsbzpwbz = '';
+
+		
+		if (count($Vxhmjttovyg4) > 1) {
+			
+			$Valxnycf2yig = 0;
+
+			$Vxcvxsbzpwbz .= '<ul class="navigation">' . PHP_EOL;
+
+			foreach ($Vxhmjttovyg4 as $Vzg4jtrmmzdy) {
+				$Vxcvxsbzpwbz .= '  <li class="sheet' . $Valxnycf2yig . '"><a href="#sheet' . $Valxnycf2yig . '">' . $Vzg4jtrmmzdy->getTitle() . '</a></li>' . PHP_EOL;
+				++$Valxnycf2yig;
+			}
+
+			$Vxcvxsbzpwbz .= '</ul>' . PHP_EOL;
+		}
+
+		return $Vxcvxsbzpwbz;
+	}
+
+	private function _extendRowsForChartsAndImages(PHPExcel_Worksheet $Vci1dgyyzjho, $Vexbtekafkvl) {
+		$Vzi244haw54t = $Vexbtekafkvl;
+		$V3rqjouv2hh3 = 'A';
+		if ($this->_includeCharts) {
+			foreach ($Vci1dgyyzjho->getChartCollection() as $Vcfg4pbgiwen) {
+				if ($Vcfg4pbgiwen instanceof PHPExcel_Chart) {
+				    $Vcfg4pbgiwenCoordinates = $Vcfg4pbgiwen->getTopLeftPosition();
+				    $Vcfg4pbgiwenTL = PHPExcel_Cell::coordinateFromString($Vcfg4pbgiwenCoordinates['cell']);
+					$Vcfg4pbgiwenCol = PHPExcel_Cell::columnIndexFromString($Vcfg4pbgiwenTL[0]);
+					if ($Vcfg4pbgiwenTL[1] > $Vzi244haw54t) {
+						$Vzi244haw54t = $Vcfg4pbgiwenTL[1];
+						if ($Vcfg4pbgiwenCol > PHPExcel_Cell::columnIndexFromString($V3rqjouv2hh3)) {
+							$V3rqjouv2hh3 = $Vcfg4pbgiwenTL[0];
+						}
+					}
+				}
+			}
+		}
+
+		foreach ($Vci1dgyyzjho->getDrawingCollection() as $V2jgycs0t2az) {
+			if ($V2jgycs0t2az instanceof PHPExcel_Worksheet_Drawing) {
+			    $Vdpxggyz2urh = PHPExcel_Cell::coordinateFromString($V2jgycs0t2az->getCoordinates());
+				$Vnygjovmcqis = PHPExcel_Cell::columnIndexFromString($Vdpxggyz2urh[0]);
+				if ($Vdpxggyz2urh[1] > $Vzi244haw54t) {
+					$Vzi244haw54t = $Vdpxggyz2urh[1];
+					if ($Vnygjovmcqis > PHPExcel_Cell::columnIndexFromString($V3rqjouv2hh3)) {
+						$V3rqjouv2hh3 = $Vdpxggyz2urh[0];
+					}
+				}
+			}
+		}
+		$Vxcvxsbzpwbz = '';
+		$V3rqjouv2hh3++;
+		while ($Vexbtekafkvl < $Vzi244haw54t) {
+			$Vxcvxsbzpwbz .= '<tr>';
+			for ($Vswazvoa3xts = 'A'; $Vswazvoa3xts != $V3rqjouv2hh3; ++$Vswazvoa3xts) {
+				$Vxcvxsbzpwbz .= '<td>';
+				$Vxcvxsbzpwbz .= $this->_writeImageInCell($Vci1dgyyzjho, $Vswazvoa3xts.$Vexbtekafkvl);
+				if ($this->_includeCharts) {
+					$Vxcvxsbzpwbz .= $this->_writeChartInCell($Vci1dgyyzjho, $Vswazvoa3xts.$Vexbtekafkvl);
+				}
+				$Vxcvxsbzpwbz .= '</td>';
+			}
+			++$Vexbtekafkvl;
+			$Vxcvxsbzpwbz .= '</tr>';
+		}
+		return $Vxcvxsbzpwbz;
+	}
+
+
+	
+	private function _writeImageInCell(PHPExcel_Worksheet $Vci1dgyyzjho, $V0p14cw241gq) {
+		
+		$Vxcvxsbzpwbz = '';
+
+		
+		foreach ($Vci1dgyyzjho->getDrawingCollection() as $V2jgycs0t2az) {
+			if ($V2jgycs0t2az instanceof PHPExcel_Worksheet_Drawing) {
+				if ($V2jgycs0t2az->getCoordinates() == $V0p14cw241gq) {
+					$Vv0mtkrhebac = $V2jgycs0t2az->getPath();
+
+					
+					if (substr($Vv0mtkrhebac, 0, 1) == '.') {
+						$Vv0mtkrhebac = substr($Vv0mtkrhebac, 1);
+					}
+
+					
+					$Vv0mtkrhebac = $this->getImagesRoot() . $Vv0mtkrhebac;
+
+					
+					if (substr($Vv0mtkrhebac, 0, 1) == '.' && substr($Vv0mtkrhebac, 0, 2) != './') {
+						$Vv0mtkrhebac = substr($Vv0mtkrhebac, 1);
+					}
+
+					
+					$Vv0mtkrhebac = htmlspecialchars($Vv0mtkrhebac);
+
+					$Vxcvxsbzpwbz .= PHP_EOL;
+					if ((!$this->_embedImages) || ($this->_isPdf)) {
+						$Veigb3ufbnjn = $Vv0mtkrhebac;
+					} else {
+						$Vbichbntf0kp = getimagesize($Vv0mtkrhebac);
+						if ($Vte5rlrg50fv = fopen($Vv0mtkrhebac,"rb", 0)) {
+							$V1p4b5jq1dnc = fread($Vte5rlrg50fv,filesize($Vv0mtkrhebac));
+							fclose($Vte5rlrg50fv);
+							
+							
+							$Vjji2353hvqn = chunk_split(base64_encode($V1p4b5jq1dnc));
+							$Veigb3ufbnjn = 'data:'.$Vbichbntf0kp['mime'].';base64,' . $Vjji2353hvqn;
+						} else {
+							$Veigb3ufbnjn = $Vv0mtkrhebac;
+						}
+					}
+
+					$Vxcvxsbzpwbz .= '<div style="position: relative;">';
+					$Vxcvxsbzpwbz .= '<img style="position: absolute; z-index: 1; left: ' . 
+                        $V2jgycs0t2az->getOffsetX() . 'px; top: ' . $V2jgycs0t2az->getOffsetY() . 'px; width: ' . 
+                        $V2jgycs0t2az->getWidth() . 'px; height: ' . $V2jgycs0t2az->getHeight() . 'px;" src="' . 
+                        $Veigb3ufbnjn . '" border="0" />';
+					$Vxcvxsbzpwbz .= '</div>';
+				}
+			}
+		}
+
+		
+		return $Vxcvxsbzpwbz;
+	}
+
+	
+	private function _writeChartInCell(PHPExcel_Worksheet $Vci1dgyyzjho, $V0p14cw241gq) {
+		
+		$Vxcvxsbzpwbz = '';
+
+		
+		foreach ($Vci1dgyyzjho->getChartCollection() as $Vcfg4pbgiwen) {
+			if ($Vcfg4pbgiwen instanceof PHPExcel_Chart) {
+			    $Vcfg4pbgiwenCoordinates = $Vcfg4pbgiwen->getTopLeftPosition();
+				if ($Vcfg4pbgiwenCoordinates['cell'] == $V0p14cw241gq) {
+					$Vcfg4pbgiwenFileName = PHPExcel_Shared_File::sys_get_temp_dir().'/'.uniqid().'.png';
+					if (!$Vcfg4pbgiwen->render($Vcfg4pbgiwenFileName)) {
+						return;
+					}
+
+					$Vxcvxsbzpwbz .= PHP_EOL;
+					$Vbichbntf0kp = getimagesize($Vcfg4pbgiwenFileName);
+					if ($Vte5rlrg50fv = fopen($Vcfg4pbgiwenFileName,"rb", 0)) {
+						$V1p4b5jq1dnc = fread($Vte5rlrg50fv,filesize($Vcfg4pbgiwenFileName));
+						fclose($Vte5rlrg50fv);
+						
+						
+						$Vjji2353hvqn = chunk_split(base64_encode($V1p4b5jq1dnc));
+						$Veigb3ufbnjn = 'data:'.$Vbichbntf0kp['mime'].';base64,' . $Vjji2353hvqn;
+
+						$Vxcvxsbzpwbz .= '<div style="position: relative;">';
+						$Vxcvxsbzpwbz .= '<img style="position: absolute; z-index: 1; left: ' . $Vcfg4pbgiwenCoordinates['xOffset'] . 'px; top: ' . $Vcfg4pbgiwenCoordinates['yOffset'] . 'px; width: ' . $Vbichbntf0kp[0] . 'px; height: ' . $Vbichbntf0kp[1] . 'px;" src="' . $Veigb3ufbnjn . '" border="0" />' . PHP_EOL;
+						$Vxcvxsbzpwbz .= '</div>';
+
+						unlink($Vcfg4pbgiwenFileName);
+					}
+				}
+			}
+		}
+
+		
+		return $Vxcvxsbzpwbz;
+	}
+
+	
+	public function generateStyles($V0ljhupfrg3j = true) {
+		
+		if (is_null($this->_phpExcel)) {
+			throw new PHPExcel_Writer_Exception('Internal PHPExcel object not set to an instance of an object.');
+		}
+
+		
+		$Vim4gcyktb2a = $this->buildCSS($V0ljhupfrg3j);
+
+		
+		$Vxcvxsbzpwbz = '';
+
+		
+		if ($V0ljhupfrg3j) {
+			$Vxcvxsbzpwbz .= '	<style type="text/css">' . PHP_EOL;
+			$Vxcvxsbzpwbz .= '	  html { ' . $this->_assembleCSS($Vim4gcyktb2a['html']) . ' }' . PHP_EOL;
+		}
+
+		
+		foreach ($Vim4gcyktb2a as $Vixiyakqtpcu => $Veod5dgw4it0) {
+			if ($Vixiyakqtpcu != 'html') {
+				$Vxcvxsbzpwbz .= '	  ' . $Vixiyakqtpcu . ' { ' . $this->_assembleCSS($Veod5dgw4it0) . ' }' . PHP_EOL;
+			}
+		}
+
+		
+		if ($V0ljhupfrg3j) {
+			$Vxcvxsbzpwbz .= '	</style>' . PHP_EOL;
+		}
+
+		
+		return $Vxcvxsbzpwbz;
+	}
+
+	
+	public function buildCSS($V0ljhupfrg3j = true) {
+		
+		if (is_null($this->_phpExcel)) {
+			throw new PHPExcel_Writer_Exception('Internal PHPExcel object not set to an instance of an object.');
+		}
+
+		
+		if (!is_null($this->_cssStyles)) {
+			return $this->_cssStyles;
+		}
+
+		
+		if (!$this->_spansAreCalculated) {
+			$this->_calculateSpans();
+		}
+
+		
+		$Vim4gcyktb2a = array();
+
+		
+		if ($V0ljhupfrg3j) {
+			
+			$Vim4gcyktb2a['html']['font-family']	  = 'Calibri, Arial, Helvetica, sans-serif';
+			$Vim4gcyktb2a['html']['font-size']		= '11pt';
+			$Vim4gcyktb2a['html']['background-color'] = 'white';
+		}
+
+
+		
+		$Vim4gcyktb2a['table']['border-collapse']  = 'collapse';
+	    if (!$this->_isPdf) {
+			$Vim4gcyktb2a['table']['page-break-after'] = 'always';
+		}
+
+		
+		$Vim4gcyktb2a['.gridlines td']['border'] = '1px dotted black';
+		$Vim4gcyktb2a['.gridlines th']['border'] = '1px dotted black';
+
+		
+		$Vim4gcyktb2a['.b']['text-align'] = 'center'; 
+
+		
+		$Vim4gcyktb2a['.e']['text-align'] = 'center'; 
+
+		
+		$Vim4gcyktb2a['.f']['text-align'] = 'right'; 
+
+		
+		$Vim4gcyktb2a['.inlineStr']['text-align'] = 'left'; 
+
+		
+		$Vim4gcyktb2a['.n']['text-align'] = 'right'; 
+
+		
+		$Vim4gcyktb2a['.s']['text-align'] = 'left'; 
+
+		
+		foreach ($this->_phpExcel->getCellXfCollection() as $Vx5qfylfb01c => $Vdtcpflt5bhp) {
+			$Vim4gcyktb2a['td.style' . $Vx5qfylfb01c] = $this->_createCSSStyle( $Vdtcpflt5bhp );
+			$Vim4gcyktb2a['th.style' . $Vx5qfylfb01c] = $this->_createCSSStyle( $Vdtcpflt5bhp );
+		}
+
+		
+		$Vxhmjttovyg4 = array();
+		if (is_null($this->_sheetIndex)) {
+			$Vxhmjttovyg4 = $this->_phpExcel->getAllSheets();
+		} else {
+			$Vxhmjttovyg4[] = $this->_phpExcel->getSheet($this->_sheetIndex);
+		}
+
+		
+		foreach ($Vxhmjttovyg4 as $Vzg4jtrmmzdy) {
+			
+			$Vzg4jtrmmzdyIndex = $Vzg4jtrmmzdy->getParent()->getIndex($Vzg4jtrmmzdy);
+
+			
+			
+			$Vzg4jtrmmzdy->calculateColumnWidths();
+
+			
+			$Vsmjmopb34pq = PHPExcel_Cell::columnIndexFromString($Vzg4jtrmmzdy->getHighestColumn()) - 1;
+			$Vn4q2p4mkwa0 = -1;
+			while($Vn4q2p4mkwa0++ < $Vsmjmopb34pq) {
+				$this->_columnWidths[$Vzg4jtrmmzdyIndex][$Vn4q2p4mkwa0] = 42; 
+				$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' col.col' . $Vn4q2p4mkwa0]['width'] = '42pt';
+			}
+
+			
+			foreach ($Vzg4jtrmmzdy->getColumnDimensions() as $Vn4q2p4mkwa0Dimension) {
+				if (($Vojs2qdgagwv = PHPExcel_Shared_Drawing::cellDimensionToPixels($Vn4q2p4mkwa0Dimension->getWidth(), $this->_defaultFont)) >= 0) {
+					$Vojs2qdgagwv = PHPExcel_Shared_Drawing::pixelsToPoints($Vojs2qdgagwv);
+					$Vn4q2p4mkwa0 = PHPExcel_Cell::columnIndexFromString($Vn4q2p4mkwa0Dimension->getColumnIndex()) - 1;
+					$this->_columnWidths[$Vzg4jtrmmzdyIndex][$Vn4q2p4mkwa0] = $Vojs2qdgagwv;
+					$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' col.col' . $Vn4q2p4mkwa0]['width'] = $Vojs2qdgagwv . 'pt';
+
+					if ($Vn4q2p4mkwa0Dimension->getVisible() === false) {
+						$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' col.col' . $Vn4q2p4mkwa0]['visibility'] = 'collapse';
+						$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' col.col' . $Vn4q2p4mkwa0]['*display'] = 'none'; 
+					}
+				}
+			}
+
+			
+			$VexbtekafkvlDimension = $Vzg4jtrmmzdy->getDefaultRowDimension();
+
+			
+			$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr'] = array();
+
+			if ($VexbtekafkvlDimension->getRowHeight() == -1) {
+				$Vkmyfhcbveam = PHPExcel_Shared_Font::getDefaultRowHeightByFont($this->_phpExcel->getDefaultStyle()->getFont());
+			} else {
+				$Vkmyfhcbveam = $VexbtekafkvlDimension->getRowHeight();
+			}
+			$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr']['height'] = $Vkmyfhcbveam . 'pt';
+			if ($VexbtekafkvlDimension->getVisible() === false) {
+				$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr']['display']	= 'none';
+				$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr']['visibility'] = 'hidden';
+			}
+
+			
+			foreach ($Vzg4jtrmmzdy->getRowDimensions() as $VexbtekafkvlDimension) {
+				$Vexbtekafkvl = $VexbtekafkvlDimension->getRowIndex() - 1;
+
+				
+				$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr.row' . $Vexbtekafkvl] = array();
+
+				if ($VexbtekafkvlDimension->getRowHeight() == -1) {
+					$Vkmyfhcbveam = PHPExcel_Shared_Font::getDefaultRowHeightByFont($this->_phpExcel->getDefaultStyle()->getFont());
+				} else {
+					$Vkmyfhcbveam = $VexbtekafkvlDimension->getRowHeight();
+				}
+				$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr.row' . $Vexbtekafkvl]['height'] = $Vkmyfhcbveam . 'pt';
+				if ($VexbtekafkvlDimension->getVisible() === false) {
+					$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr.row' . $Vexbtekafkvl]['display'] = 'none';
+					$Vim4gcyktb2a['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr.row' . $Vexbtekafkvl]['visibility'] = 'hidden';
+				}
+			}
+		}
+
+		
+		if (is_null($this->_cssStyles)) {
+			$this->_cssStyles = $Vim4gcyktb2a;
+		}
+
+		
+		return $Vim4gcyktb2a;
+	}
+
+	
+	private function _createCSSStyle(PHPExcel_Style $Varc42rjkigb) {
+		
+		$Vim4gcyktb2a = '';
+
+		
+		$Vim4gcyktb2a = array_merge(
+			$this->_createCSSStyleAlignment($Varc42rjkigb->getAlignment())
+			, $this->_createCSSStyleBorders($Varc42rjkigb->getBorders())
+			, $this->_createCSSStyleFont($Varc42rjkigb->getFont())
+			, $this->_createCSSStyleFill($Varc42rjkigb->getFill())
+		);
+
+		
+		return $Vim4gcyktb2a;
+	}
+
+	
+	private function _createCSSStyleAlignment(PHPExcel_Style_Alignment $Varc42rjkigb) {
+		
+		$Vim4gcyktb2a = array();
+
+		
+		$Vim4gcyktb2a['vertical-align'] = $this->_mapVAlign($Varc42rjkigb->getVertical());
+		if ($Vs2ors5u0erz = $this->_mapHAlign($Varc42rjkigb->getHorizontal())) {
+			$Vim4gcyktb2a['text-align'] = $Vs2ors5u0erz;
+			if(in_array($Vs2ors5u0erz,array('left','right')))
+				$Vim4gcyktb2a['padding-'.$Vs2ors5u0erz] = (string)((int)$Varc42rjkigb->getIndent() * 9).'px';
+		}
+
+		
+		return $Vim4gcyktb2a;
+	}
+
+	
+	private function _createCSSStyleFont(PHPExcel_Style_Font $Varc42rjkigb) {
+		
+		$Vim4gcyktb2a = array();
+
+		
+		if ($Varc42rjkigb->getBold()) {
+			$Vim4gcyktb2a['font-weight'] = 'bold';
+		}
+		if ($Varc42rjkigb->getUnderline() != PHPExcel_Style_Font::UNDERLINE_NONE && $Varc42rjkigb->getStrikethrough()) {
+			$Vim4gcyktb2a['text-decoration'] = 'underline line-through';
+		} else if ($Varc42rjkigb->getUnderline() != PHPExcel_Style_Font::UNDERLINE_NONE) {
+			$Vim4gcyktb2a['text-decoration'] = 'underline';
+		} else if ($Varc42rjkigb->getStrikethrough()) {
+			$Vim4gcyktb2a['text-decoration'] = 'line-through';
+		}
+		if ($Varc42rjkigb->getItalic()) {
+			$Vim4gcyktb2a['font-style'] = 'italic';
+		}
+
+		$Vim4gcyktb2a['color']		= '#' . $Varc42rjkigb->getColor()->getRGB();
+		$Vim4gcyktb2a['font-family']	= '\'' . $Varc42rjkigb->getName() . '\'';
+		$Vim4gcyktb2a['font-size']	= $Varc42rjkigb->getSize() . 'pt';
+
+		
+		return $Vim4gcyktb2a;
+	}
+
+	
+	private function _createCSSStyleBorders(PHPExcel_Style_Borders $Varc42rjkigb) {
+		
+		$Vim4gcyktb2a = array();
+
+		
+		$Vim4gcyktb2a['border-bottom']	= $this->_createCSSStyleBorder($Varc42rjkigb->getBottom());
+		$Vim4gcyktb2a['border-top']		= $this->_createCSSStyleBorder($Varc42rjkigb->getTop());
+		$Vim4gcyktb2a['border-left']		= $this->_createCSSStyleBorder($Varc42rjkigb->getLeft());
+		$Vim4gcyktb2a['border-right']	= $this->_createCSSStyleBorder($Varc42rjkigb->getRight());
+
+		
+		return $Vim4gcyktb2a;
+	}
+
+	
+	private function _createCSSStyleBorder(PHPExcel_Style_Border $Varc42rjkigb) {
+		
+
+		
+		$V3w3s2v4rm1p = $this->_mapBorderStyle($Varc42rjkigb->getBorderStyle());  
+		$Vim4gcyktb2a = $V3w3s2v4rm1p . ' #' . $Varc42rjkigb->getColor()->getRGB() . (($V3w3s2v4rm1p == 'none') ? '' : ' !important'); 
+
+		
+		return $Vim4gcyktb2a;
+	}
+
+	
+	private function _createCSSStyleFill(PHPExcel_Style_Fill $Varc42rjkigb) {
+		
+		$Vim4gcyktb2a = array();
+
+		
+		$Vp4xjtpabm0l = $Varc42rjkigb->getFillType() == PHPExcel_Style_Fill::FILL_NONE ?
+			'white' : '#' . $Varc42rjkigb->getStartColor()->getRGB();
+		$Vim4gcyktb2a['background-color'] = $Vp4xjtpabm0l;
+
+		
+		return $Vim4gcyktb2a;
+	}
+
+	
+	public function generateHTMLFooter() {
+		
+		$Vxcvxsbzpwbz = '';
+		$Vxcvxsbzpwbz .= '  </body>' . PHP_EOL;
+		$Vxcvxsbzpwbz .= '</html>' . PHP_EOL;
+
+		
+		return $Vxcvxsbzpwbz;
+	}
+
+	
+	private function _generateTableHeader($Vci1dgyyzjho) {
+		$Vzg4jtrmmzdyIndex = $Vci1dgyyzjho->getParent()->getIndex($Vci1dgyyzjho);
+
+		
+		$Vxcvxsbzpwbz = '';
+		$Vxcvxsbzpwbz .= $this->_setMargins($Vci1dgyyzjho);
+			
+		if (!$this->_useInlineCss) {
+			$Vwqubsvz5vgu = $Vci1dgyyzjho->getShowGridlines() ? ' gridlines' : '';
+			$Vxcvxsbzpwbz .= '	<table border="0" cellpadding="0" cellspacing="0" id="sheet' . $Vzg4jtrmmzdyIndex . '" class="sheet' . $Vzg4jtrmmzdyIndex . $Vwqubsvz5vgu . '">' . PHP_EOL;
+		} else {
+			$Vdtcpflt5bhp = isset($this->_cssStyles['table']) ?
+				$this->_assembleCSS($this->_cssStyles['table']) : '';
+
+			if ($this->_isPdf && $Vci1dgyyzjho->getShowGridlines()) {
+				$Vxcvxsbzpwbz .= '	<table border="1" cellpadding="1" id="sheet' . $Vzg4jtrmmzdyIndex . '" cellspacing="1" style="' . $Vdtcpflt5bhp . '">' . PHP_EOL;
+			} else {
+				$Vxcvxsbzpwbz .= '	<table border="0" cellpadding="1" id="sheet' . $Vzg4jtrmmzdyIndex . '" cellspacing="0" style="' . $Vdtcpflt5bhp . '">' . PHP_EOL;
+			}
+		}
+
+		
+		$Vsmjmopb34pq = PHPExcel_Cell::columnIndexFromString($Vci1dgyyzjho->getHighestColumn()) - 1;
+		$Vfhiq1lhsoja = -1;
+		while($Vfhiq1lhsoja++ < $Vsmjmopb34pq) {
+		    if (!$this->_isPdf) {
+				if (!$this->_useInlineCss) {
+					$Vxcvxsbzpwbz .= '		<col class="col' . $Vfhiq1lhsoja . '">' . PHP_EOL;
+				} else {
+					$Vdtcpflt5bhp = isset($this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' col.col' . $Vfhiq1lhsoja]) ?
+						$this->_assembleCSS($this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' col.col' . $Vfhiq1lhsoja]) : '';
+					$Vxcvxsbzpwbz .= '		<col style="' . $Vdtcpflt5bhp . '">' . PHP_EOL;
+				}
+			}
+		}
+
+		
+		return $Vxcvxsbzpwbz;
+	}
+
+	
+	private function _generateTableFooter() {
+		
+		$Vxcvxsbzpwbz = '';
+		$Vxcvxsbzpwbz .= '	</table>' . PHP_EOL;
+
+		
+		return $Vxcvxsbzpwbz;
+	}
+
+	
+	private function _generateRow(PHPExcel_Worksheet $Vci1dgyyzjho, $Vqujkwol1zuts = null, $Vsb2id3rjpxz = 0, $V3wv33pejuaz = 'td') {
+		if (is_array($Vqujkwol1zuts)) {
+			
+			$Vxcvxsbzpwbz = '';
+
+			
+			$Vzg4jtrmmzdyIndex = $Vci1dgyyzjho->getParent()->getIndex($Vci1dgyyzjho);
+
+			
+			if ($this->_isPdf && count($Vci1dgyyzjho->getBreaks()) > 0) {
+				$Vyswjropf3tz = $Vci1dgyyzjho->getBreaks();
+
+				
+				if (isset($Vyswjropf3tz['A' . $Vsb2id3rjpxz])) {
+					
+					$Vxcvxsbzpwbz .= $this->_generateTableFooter();
+
+					
+					$Vxcvxsbzpwbz .= '<div style="page-break-before:always" />';
+
+					
+					$Vxcvxsbzpwbz .= $this->_generateTableHeader($Vci1dgyyzjho);
+				}
+			}
+
+			
+			if (!$this->_useInlineCss) {
+				$Vxcvxsbzpwbz .= '		  <tr class="row' . $Vsb2id3rjpxz . '">' . PHP_EOL;
+			} else {
+				$Vdtcpflt5bhp = isset($this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr.row' . $Vsb2id3rjpxz])
+					? $this->_assembleCSS($this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr.row' . $Vsb2id3rjpxz]) : '';
+
+				$Vxcvxsbzpwbz .= '		  <tr style="' . $Vdtcpflt5bhp . '">' . PHP_EOL;
+			}
+
+			
+			$Vswazvoa3xtsNum = 0;
+			foreach ($Vqujkwol1zuts as $V4343a0vl0rl) {
+                $Vblc1ueqvbti = ($V4343a0vl0rl > '') ? $Vci1dgyyzjho->getCell($V4343a0vl0rl) : '';
+				$Vwykjuif1nf3 = PHPExcel_Cell::stringFromColumnIndex($Vswazvoa3xtsNum) . ($Vsb2id3rjpxz + 1);
+				if (!$this->_useInlineCss) {
+					$Vim4gcyktb2aClass = '';
+					$Vim4gcyktb2aClass = 'column' . $Vswazvoa3xtsNum;
+				} else {
+					$Vim4gcyktb2aClass = array();
+                    if ($V3wv33pejuaz == 'th') {
+                        if (isset($this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' th.column' . $Vswazvoa3xtsNum])) {
+                            $this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' th.column' . $Vswazvoa3xtsNum];
+                        }
+                    } else {
+                        if (isset($this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' td.column' . $Vswazvoa3xtsNum])) {
+                            $this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' td.column' . $Vswazvoa3xtsNum];
+                        }
+                    }
+				}
+				$Vswazvoa3xtsSpan = 1;
+				$VexbtekafkvlSpan = 1;
+
+				
+				$Vblc1ueqvbtiData = '&nbsp;';
+
+				
+				if ($Vblc1ueqvbti instanceof PHPExcel_Cell) {
+					$Vblc1ueqvbtiData = '';
+					if (is_null($Vblc1ueqvbti->getParent())) {
+						$Vblc1ueqvbti->attach($Vci1dgyyzjho);
+					}
+					
+					if ($Vblc1ueqvbti->getValue() instanceof PHPExcel_RichText) {
+						
+						$Vqy5grnvvrgx = $Vblc1ueqvbti->getValue()->getRichTextElements();
+						foreach ($Vqy5grnvvrgx as $Vltoddaysjlm) {
+							
+							if ($Vltoddaysjlm instanceof PHPExcel_RichText_Run) {
+								$Vblc1ueqvbtiData .= '<span style="' . $this->_assembleCSS($this->_createCSSStyleFont($Vltoddaysjlm->getFont())) . '">';
+
+								if ($Vltoddaysjlm->getFont()->getSuperScript()) {
+									$Vblc1ueqvbtiData .= '<sup>';
+								} else if ($Vltoddaysjlm->getFont()->getSubScript()) {
+									$Vblc1ueqvbtiData .= '<sub>';
+								}
+							}
+
+							
+							$Vblc1ueqvbtiText = $Vltoddaysjlm->getText();
+							$Vblc1ueqvbtiData .= htmlspecialchars($Vblc1ueqvbtiText);
+
+							if ($Vltoddaysjlm instanceof PHPExcel_RichText_Run) {
+								if ($Vltoddaysjlm->getFont()->getSuperScript()) {
+									$Vblc1ueqvbtiData .= '</sup>';
+								} else if ($Vltoddaysjlm->getFont()->getSubScript()) {
+									$Vblc1ueqvbtiData .= '</sub>';
+								}
+
+								$Vblc1ueqvbtiData .= '</span>';
+							}
+						}
+					} else {
+						if ($this->_preCalculateFormulas) {
+							$Vblc1ueqvbtiData = PHPExcel_Style_NumberFormat::toFormattedString(
+								$Vblc1ueqvbti->getCalculatedValue(),
+								$Vci1dgyyzjho->getParent()->getCellXfByIndex( $Vblc1ueqvbti->getXfIndex() )->getNumberFormat()->getFormatCode(),
+								array($this, 'formatColor')
+							);
+						} else {
+							$Vblc1ueqvbtiData = PHPExcel_Style_NumberFormat::toFormattedString(
+								$Vblc1ueqvbti->getValue(),
+								$Vci1dgyyzjho->getParent()->getCellXfByIndex( $Vblc1ueqvbti->getXfIndex() )->getNumberFormat()->getFormatCode(),
+								array($this, 'formatColor')
+							);
+						}
+						$Vblc1ueqvbtiData = htmlspecialchars($Vblc1ueqvbtiData);
+						if ($Vci1dgyyzjho->getParent()->getCellXfByIndex( $Vblc1ueqvbti->getXfIndex() )->getFont()->getSuperScript()) {
+							$Vblc1ueqvbtiData = '<sup>'.$Vblc1ueqvbtiData.'</sup>';
+						} elseif ($Vci1dgyyzjho->getParent()->getCellXfByIndex( $Vblc1ueqvbti->getXfIndex() )->getFont()->getSubScript()) {
+							$Vblc1ueqvbtiData = '<sub>'.$Vblc1ueqvbtiData.'</sub>';
+						}
+					}
+
+					
+					
+					$Vblc1ueqvbtiData = preg_replace("/(?m)(?:^|\\G) /", '&nbsp;', $Vblc1ueqvbtiData);
+
+					
+					$Vblc1ueqvbtiData = nl2br($Vblc1ueqvbtiData);
+
+					
+					if (!$this->_useInlineCss) {
+						$Vim4gcyktb2aClass .= ' style' . $Vblc1ueqvbti->getXfIndex();
+						$Vim4gcyktb2aClass .= ' ' . $Vblc1ueqvbti->getDataType();
+					} else {
+                        if ($V3wv33pejuaz == 'th') {
+                            if (isset($this->_cssStyles['th.style' . $Vblc1ueqvbti->getXfIndex()])) {
+                                $Vim4gcyktb2aClass = array_merge($Vim4gcyktb2aClass, $this->_cssStyles['th.style' . $Vblc1ueqvbti->getXfIndex()]);
+                            }
+                        } else {
+                            if (isset($this->_cssStyles['td.style' . $Vblc1ueqvbti->getXfIndex()])) {
+                                $Vim4gcyktb2aClass = array_merge($Vim4gcyktb2aClass, $this->_cssStyles['td.style' . $Vblc1ueqvbti->getXfIndex()]);
+                            }
+                        }
+
+						
+						$V4b4ad1uw13s = $Vci1dgyyzjho->getParent()->getCellXfByIndex( $Vblc1ueqvbti->getXfIndex() );
+						if ($V4b4ad1uw13s->getAlignment()->getHorizontal() == PHPExcel_Style_Alignment::HORIZONTAL_GENERAL
+							&& isset($this->_cssStyles['.' . $Vblc1ueqvbti->getDataType()]['text-align']))
+						{
+							$Vim4gcyktb2aClass['text-align'] = $this->_cssStyles['.' . $Vblc1ueqvbti->getDataType()]['text-align'];
+						}
+					}
+				}
+
+				
+				if ($Vci1dgyyzjho->hyperlinkExists($Vwykjuif1nf3) && !$Vci1dgyyzjho->getHyperlink($Vwykjuif1nf3)->isInternal()) {
+					$Vblc1ueqvbtiData = '<a href="' . htmlspecialchars($Vci1dgyyzjho->getHyperlink($Vwykjuif1nf3)->getUrl()) . '" title="' . htmlspecialchars($Vci1dgyyzjho->getHyperlink($Vwykjuif1nf3)->getTooltip()) . '">' . $Vblc1ueqvbtiData . '</a>';
+				}
+
+				
+				$V05mdcxnvvcf = ! ( isset($this->_isSpannedCell[$Vci1dgyyzjho->getParent()->getIndex($Vci1dgyyzjho)][$Vsb2id3rjpxz + 1][$Vswazvoa3xtsNum])
+							&& $this->_isSpannedCell[$Vci1dgyyzjho->getParent()->getIndex($Vci1dgyyzjho)][$Vsb2id3rjpxz + 1][$Vswazvoa3xtsNum] );
+
+				
+				$Vswazvoa3xtsspan = 1;
+				$Vexbtekafkvlspan = 1;
+				if (isset($this->_isBaseCell[$Vci1dgyyzjho->getParent()->getIndex($Vci1dgyyzjho)][$Vsb2id3rjpxz + 1][$Vswazvoa3xtsNum])) {
+					$Vydvwyfybntu = $this->_isBaseCell[$Vci1dgyyzjho->getParent()->getIndex($Vci1dgyyzjho)][$Vsb2id3rjpxz + 1][$Vswazvoa3xtsNum];
+					$VexbtekafkvlSpan = $Vydvwyfybntu['rowspan'];
+					$Vswazvoa3xtsSpan = $Vydvwyfybntu['colspan'];
+
+					
+					
+					$Vlqn3axmw3ua = PHPExcel_Cell::stringFromColumnIndex($Vswazvoa3xtsNum + $Vswazvoa3xtsSpan - 1) . ($Vsb2id3rjpxz + $VexbtekafkvlSpan);
+					if (!$this->_useInlineCss) {
+						$Vim4gcyktb2aClass .= ' style' . $Vci1dgyyzjho->getCell($Vlqn3axmw3ua)->getXfIndex();
+					}
+				}
+
+				
+				if ($V05mdcxnvvcf) {
+					
+					$Vxcvxsbzpwbz .= '			<' . $V3wv33pejuaz;
+						if (!$this->_useInlineCss) {
+							$Vxcvxsbzpwbz .= ' class="' . $Vim4gcyktb2aClass . '"';
+						} else {
+							
+							
+							
+							$Vojs2qdgagwv = 0;
+							$Vfhiq1lhsoja = $Vswazvoa3xtsNum - 1;
+							$Vnhm0uuykimv = $Vswazvoa3xtsNum + $Vswazvoa3xtsSpan - 1;
+							while($Vfhiq1lhsoja++ < $Vnhm0uuykimv) {
+								if (isset($this->_columnWidths[$Vzg4jtrmmzdyIndex][$Vfhiq1lhsoja])) {
+									$Vojs2qdgagwv += $this->_columnWidths[$Vzg4jtrmmzdyIndex][$Vfhiq1lhsoja];
+								}
+							}
+							$Vim4gcyktb2aClass['width'] = $Vojs2qdgagwv . 'pt';
+
+							
+							
+							if (isset($this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr.row' . $Vsb2id3rjpxz]['height'])) {
+								$Vzo4g5xb4yip = $this->_cssStyles['table.sheet' . $Vzg4jtrmmzdyIndex . ' tr.row' . $Vsb2id3rjpxz]['height'];
+								$Vim4gcyktb2aClass['height'] = $Vzo4g5xb4yip;
+							}
+							
+
+							$Vxcvxsbzpwbz .= ' style="' . $this->_assembleCSS($Vim4gcyktb2aClass) . '"';
+						}
+						if ($Vswazvoa3xtsSpan > 1) {
+							$Vxcvxsbzpwbz .= ' colspan="' . $Vswazvoa3xtsSpan . '"';
+						}
+						if ($VexbtekafkvlSpan > 1) {
+							$Vxcvxsbzpwbz .= ' rowspan="' . $VexbtekafkvlSpan . '"';
+						}
+					$Vxcvxsbzpwbz .= '>';
+
+					
+					$Vxcvxsbzpwbz .= $this->_writeImageInCell($Vci1dgyyzjho, $Vwykjuif1nf3);
+
+					
+					if ($this->_includeCharts) {
+						$Vxcvxsbzpwbz .= $this->_writeChartInCell($Vci1dgyyzjho, $Vwykjuif1nf3);
+					}
+
+					
+					$Vxcvxsbzpwbz .= $Vblc1ueqvbtiData;
+
+					
+					$Vxcvxsbzpwbz .= '</'.$V3wv33pejuaz.'>' . PHP_EOL;
+				}
+
+				
+				++$Vswazvoa3xtsNum;
+			}
+
+			
+			$Vxcvxsbzpwbz .= '		  </tr>' . PHP_EOL;
+
+			
+			return $Vxcvxsbzpwbz;
+		} else {
+			throw new PHPExcel_Writer_Exception("Invalid parameters passed.");
+		}
+	}
+
+	
+	private function _assembleCSS($Vqujkwol1zut = array())
+	{
+		$Vkxgyldfh5bm = array();
+		foreach ($Vqujkwol1zut as $Vp05lpnwyave => $Vp4xjtpabm0l) {
+			$Vkxgyldfh5bm[] = $Vp05lpnwyave . ':' . $Vp4xjtpabm0l;
+		}
+		$Vlkger5ehs4w = implode('; ', $Vkxgyldfh5bm);
+
+		return $Vlkger5ehs4w;
+	}
+
+	
+	public function getImagesRoot() {
+		return $this->_imagesRoot;
+	}
+
+	
+	public function setImagesRoot($Vqujkwol1zut = '.') {
+		$this->_imagesRoot = $Vqujkwol1zut;
+		return $this;
+	}
+
+	
+	public function getEmbedImages() {
+		return $this->_embedImages;
+	}
+
+	
+	public function setEmbedImages($Vqujkwol1zut = '.') {
+		$this->_embedImages = $Vqujkwol1zut;
+		return $this;
+	}
+
+	
+	public function getUseInlineCss() {
+		return $this->_useInlineCss;
+	}
+
+	
+	public function setUseInlineCss($Vqujkwol1zut = false) {
+		$this->_useInlineCss = $Vqujkwol1zut;
+		return $this;
+	}
+
+	
+	public function formatColor($Vqujkwol1zut, $Vzyifo54jqmf)
+	{
+		
+		$Vswazvoa3xtsor = null; 
+		$Vt3xexsia3ta = array();
+
+		$Vswazvoa3xtsor_regex = '/^\\[[a-zA-Z]+\\]/';
+		if (preg_match($Vswazvoa3xtsor_regex, $Vzyifo54jqmf, $Vt3xexsia3ta)) {
+			$Vswazvoa3xtsor = str_replace('[', '', $Vt3xexsia3ta[0]);
+			$Vswazvoa3xtsor = str_replace(']', '', $Vswazvoa3xtsor);
+			$Vswazvoa3xtsor = strtolower($Vswazvoa3xtsor);
+		}
+
+		
+		$Vp4xjtpabm0l = htmlspecialchars($Vqujkwol1zut);
+
+		
+		if ($Vswazvoa3xtsor !== null) {
+			$Vp4xjtpabm0l = '<span style="color:' . $Vswazvoa3xtsor . '">' . $Vp4xjtpabm0l . '</span>';
+		}
+
+		return $Vp4xjtpabm0l;
+	}
+
+	
+	private function _calculateSpans()
+	{
+		
+		
+		
+		$Vzg4jtrmmzdyIndexes = $this->_sheetIndex !== null ?
+			array($this->_sheetIndex) : range(0, $this->_phpExcel->getSheetCount() - 1);
+
+		foreach ($Vzg4jtrmmzdyIndexes as $Vzg4jtrmmzdyIndex) {
+			$Vzg4jtrmmzdy = $this->_phpExcel->getSheet($Vzg4jtrmmzdyIndex);
+
+			$Vu4s1kz4kzxp  = array();
+
+			
+			foreach ($Vzg4jtrmmzdy->getMergeCells() as $Vblc1ueqvbtis) {
+				list($Vblc1ueqvbtis, ) = PHPExcel_Cell::splitRange($Vblc1ueqvbtis);
+				$Vh2exnktxagp = $Vblc1ueqvbtis[0];
+				$V3ze22vtj2t0  = $Vblc1ueqvbtis[1];
+
+				list($Vuhpiwuvuxqd, $Vdfgqy2d4rx3) = PHPExcel_Cell::coordinateFromString($Vh2exnktxagp);
+				$Vuhpiwuvuxqd = PHPExcel_Cell::columnIndexFromString($Vuhpiwuvuxqd) - 1;
+
+				list($Vac03inwrzff, $Vt3sq553swgb) = PHPExcel_Cell::coordinateFromString($V3ze22vtj2t0);
+				$Vac03inwrzff = PHPExcel_Cell::columnIndexFromString($Vac03inwrzff) - 1;
+
+				
+				$Vws44nszhvgo = $Vdfgqy2d4rx3 - 1;
+				while($Vws44nszhvgo++ < $Vt3sq553swgb) {
+					
+					$Vu4s1kz4kzxp[$Vws44nszhvgo] = $Vws44nszhvgo;
+
+					$V4y0urwpnd3j = $Vuhpiwuvuxqd - 1;
+					while($V4y0urwpnd3j++ < $Vac03inwrzff) {
+						if ( !($V4y0urwpnd3j == $Vuhpiwuvuxqd && $Vws44nszhvgo == $Vdfgqy2d4rx3) ) {
+							
+							$this->_isSpannedCell[$Vzg4jtrmmzdyIndex][$Vws44nszhvgo][$V4y0urwpnd3j] = array(
+								'baseCell' => array($Vdfgqy2d4rx3, $Vuhpiwuvuxqd),
+							);
+						} else {
+							
+							$this->_isBaseCell[$Vzg4jtrmmzdyIndex][$Vws44nszhvgo][$V4y0urwpnd3j] = array(
+								'xlrowspan' => $Vt3sq553swgb - $Vdfgqy2d4rx3 + 1, 
+								'rowspan'   => $Vt3sq553swgb - $Vdfgqy2d4rx3 + 1, 
+								'xlcolspan' => $Vac03inwrzff - $Vuhpiwuvuxqd + 1, 
+								'colspan'   => $Vac03inwrzff - $Vuhpiwuvuxqd + 1, 
+							);
+						}
+					}
+				}
+			}
+
+			
+			
+			$V4y0urwpnd3jountColumns = PHPExcel_Cell::columnIndexFromString($Vzg4jtrmmzdy->getHighestColumn());
+			foreach ($Vu4s1kz4kzxp as $VexbtekafkvlIndex) {
+				if (isset($this->_isSpannedCell[$Vzg4jtrmmzdyIndex][$VexbtekafkvlIndex])) {
+					if (count($this->_isSpannedCell[$Vzg4jtrmmzdyIndex][$VexbtekafkvlIndex]) == $V4y0urwpnd3jountColumns) {
+						$this->_isSpannedRow[$Vzg4jtrmmzdyIndex][$VexbtekafkvlIndex] = $VexbtekafkvlIndex;
+					};
+				}
+			}
+
+			
+			if ( isset($this->_isSpannedRow[$Vzg4jtrmmzdyIndex]) ) {
+				foreach ($this->_isSpannedRow[$Vzg4jtrmmzdyIndex] as $VexbtekafkvlIndex) {
+					$Vfui3gibugyv = array();
+					$V4y0urwpnd3j = -1;
+					$Vnhm0uuykimv = $V4y0urwpnd3jountColumns - 1;
+					while($V4y0urwpnd3j++ < $Vnhm0uuykimv) {
+						$V4ptkkricfpr = $this->_isSpannedCell[$Vzg4jtrmmzdyIndex][$VexbtekafkvlIndex][$V4y0urwpnd3j]['baseCell'];
+
+						if ( !in_array($V4ptkkricfpr, $Vfui3gibugyv) ) {
+							
+							--$this->_isBaseCell[$Vzg4jtrmmzdyIndex][ $V4ptkkricfpr[0] ][ $V4ptkkricfpr[1] ]['rowspan'];
+							$Vfui3gibugyv[] = $V4ptkkricfpr;
+						}
+					}
+				}
+			}
+
+			
+		}
+
+		
+		$this->_spansAreCalculated = true;
+	}
+
+	private function _setMargins(PHPExcel_Worksheet $Vci1dgyyzjho) {
+		$VxcvxsbzpwbzPage = '@page { ';
+		$VxcvxsbzpwbzBody = 'body { ';
+
+		$Vrce0gsxjgkc = PHPExcel_Shared_String::FormatNumber($Vci1dgyyzjho->getPageMargins()->getLeft()) . 'in; ';
+		$VxcvxsbzpwbzPage .= 'left-margin: ' . $Vrce0gsxjgkc;
+		$VxcvxsbzpwbzBody .= 'left-margin: ' . $Vrce0gsxjgkc;
+		$Vws44nszhvgoight = PHPExcel_Shared_String::FormatNumber($Vci1dgyyzjho->getPageMargins()->getRight()) . 'in; ';
+		$VxcvxsbzpwbzPage .= 'right-margin: ' . $Vws44nszhvgoight;
+		$VxcvxsbzpwbzBody .= 'right-margin: ' . $Vws44nszhvgoight;
+		$Vrveb1xz24qu = PHPExcel_Shared_String::FormatNumber($Vci1dgyyzjho->getPageMargins()->getTop()) . 'in; ';
+		$VxcvxsbzpwbzPage .= 'top-margin: ' . $Vrveb1xz24qu;
+		$VxcvxsbzpwbzBody .= 'top-margin: ' . $Vrveb1xz24qu;
+		$Vyzmqhafpy0b = PHPExcel_Shared_String::FormatNumber($Vci1dgyyzjho->getPageMargins()->getBottom()) . 'in; ';
+		$VxcvxsbzpwbzPage .= 'bottom-margin: ' . $Vyzmqhafpy0b;
+		$VxcvxsbzpwbzBody .= 'bottom-margin: ' . $Vyzmqhafpy0b;
+
+		$VxcvxsbzpwbzPage .= "}\n";
+		$VxcvxsbzpwbzBody .= "}\n";
+
+		return "<style>\n" . $VxcvxsbzpwbzPage . $VxcvxsbzpwbzBody . "</style>\n";
+	}
+	
+}

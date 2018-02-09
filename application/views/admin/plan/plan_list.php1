@@ -1,0 +1,146 @@
+<?php include_once 'asset/admin-ajax.php'; ?>
+
+<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>asset/css/kendo.default.min.css" />
+<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>asset/css/kendo.common.min.css" />
+<script type="text/javascript" src="<?php echo base_url(); ?>asset/js/kendo.all.min.js"></script>
+<?= message_box('success'); ?>
+<?= message_box('error'); ?>
+<div class="nav-tabs-custom">
+    <!-- Tabs within a box -->
+    <ul class="nav nav-tabs">
+        <li class="<?= $active == 1 ? 'active' : ''; ?>"><a href="#manage" data-toggle="tab"><?= lang('all_plans') ?></a></li>
+        <li class="<?= $active == 2 ? 'active' : ''; ?>"><a href="#new" data-toggle="tab"><?= lang('new_plan') ?></a></li>                                                                     
+    </ul>
+    <div class="tab-content no-padding">
+        <!-- ************** general *************-->
+        <div class="tab-pane <?= $active == '1' ? 'active' : ''; ?>" id="manage">
+            <table class="table table-striped" id="DataTables">
+                <thead>
+                    <tr>
+                        <th class="col-sm-3"><?= lang('power') ?></th>
+						<th><?= lang('price') ?></th>
+                        
+                        <th class="col-sm-2"><?= lang('action') ?></th>
+
+                    </tr>
+                </thead>
+                <tbody>                    
+                    <?php
+					
+                    if (!empty($all_plan_info)): 
+						foreach ($all_plan_info as $v_info) :
+                           // $account_info = $this->plan_model->check_by(array('plan_id' => $v_info->plan_id), 'tbl_account_details');
+                            
+                                ?>
+
+                                <tr>
+                                    <td><?php echo $v_info->power ?></td>
+                                    
+                                    <td><?php echo ($v_info->price) ?></td>               								
+                                                                 
+                                    
+                                    <td>
+										<?php echo btn_edit('admin/plan/plan_list/edit_plan/' . $v_info->plan_id); ?>
+										<?php echo btn_delete('admin/plan/delete_plan/' . $v_info->plan_id); ?>
+                                    </td>
+
+
+                                </tr>
+                                <?php
+                            
+                        endforeach;
+                        ?>
+                    <?php else : ?>
+                    <td colspan="5">
+                        <strong>There is no data to display</strong>
+                    </td>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane <?= $active == '2' ? 'active' : ''; ?>" id="new">
+            <form role="form" id="planForm" enctype="multipart/form-data" action="<?php echo base_url(); ?>admin/plan/save_plan" method="post" class="form-horizontal form-groups-bordered">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><strong><?= lang('power') ?> </strong><span class="text-danger">*</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="input-sm form-control" value="<?php
+                                if (!empty($plan_info)) {
+                                    echo $plan_info->power;
+                                }
+                                ?>" placeholder="<?= lang('eg') ?> <?= lang('power') ?>" name="power" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><strong><?= lang('price') ?> </strong><span class="text-danger">*</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="input-sm form-control" value="<?php
+                                if (!empty($plan_info)) {
+                                    echo $plan_info->price;
+                                }
+                                ?>" placeholder="<?= lang('eg') ?> <?= lang('price') ?>" name="price" required>
+								  <input type="hidden" class="input-sm form-control" value="<?php echo!empty($plan_id) ? $plan_id : '' ?>" placeholder="<?= lang('eg') ?> <?= lang('price') ?>" name="plan_id" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-sm-4"></label>
+                            <div class="col-sm-8">
+                                <button type="submit" id="sbtn" class="btn btn-primary"><?php echo!empty($plan_id) ? lang('update_plan') : lang('create_plan') ?></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $().ready(function() {
+
+            // validate signup form on keyup and submit
+        $("#planForm").validate({
+            rules: {
+            	price: {
+                    required: true,
+                    number: true,
+                },
+                power: {
+					required: true,
+					number: true,
+                },
+            },
+			highlight: function(element) {
+				$(element).closest('.form-group').addClass('has-error');
+			},
+			unhighlight: function(element) {
+				$(element).closest('.form-group').removeClass('has-error');
+			},
+			errorElement: 'span',
+			errorClass: 'help-block',
+            errorPlacement: function(error, element) {
+				if (element.parent('.input-group').length) {
+				error.insertAfter(element.parent());
+				} else {
+				error.insertAfter(element);
+				}
+			},
+            messages: {
+				price: {
+					required: "Please enter price",
+					number: "Please enter correct value of price"
+				},
+				power: {
+					required: "Please provide value for power",
+					number: "Please enter correct value for power"
+				},   
+
+            }
+        });
+     });
+</script>
